@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ASCII Hero Video Test | DEM Systems</title>
+
+  <!-- Monospace font for ASCII rendering -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/ascii-hero-test.css">
+
+  <style>
+    /* Inline critical styles */
+    .ascii-output-pre, .ascii-output-canvas {
+      font-family: 'Fira Code', 'SF Mono', Consolas, monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="ascii-hero-test">
+    <!-- Header -->
+    <header class="test-header">
+      <h1>ASCII<span> Hero Video Test</span></h1>
+      <div class="stats-display">
+        <div class="stat">
+          <span class="stat-label">FPS:</span>
+          <span class="stat-value" id="stat-fps">--</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Process:</span>
+          <span class="stat-value" id="stat-process">--ms</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Size:</span>
+          <span class="stat-value" id="stat-size">--</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Video:</span>
+          <span class="stat-value" id="stat-video">--</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ASCII Output Container -->
+    <main class="ascii-container" id="ascii-container">
+      <!-- Loading overlay -->
+      <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Loading video...</p>
+      </div>
+    </main>
+
+    <!-- Controls Panel -->
+    <aside class="controls-panel" id="controls-panel">
+      <!-- Playback -->
+      <section class="control-section">
+        <h3>Playback</h3>
+        <div class="control-buttons">
+          <button class="btn btn-primary" id="btn-play">Play</button>
+          <button class="btn" id="btn-pause">Pause</button>
+        </div>
+      </section>
+
+      <!-- Presets -->
+      <section class="control-section">
+        <h3>Presets</h3>
+        <div class="presets-grid">
+          <button class="preset-btn active" data-preset="detailed">Detailed</button>
+          <button class="preset-btn" data-preset="retro">Retro</button>
+          <button class="preset-btn" data-preset="matrix">Matrix</button>
+          <button class="preset-btn" data-preset="minimal">Minimal</button>
+          <button class="preset-btn" data-preset="blocks">Blocks</button>
+          <button class="preset-btn" data-preset="high-contrast">Hi-Contrast</button>
+        </div>
+      </section>
+
+      <!-- Resolution -->
+      <section class="control-section">
+        <h3>Resolution</h3>
+        <div class="control-row">
+          <label>
+            Width (characters)
+            <span id="width-value">120</span>
+          </label>
+          <input type="range" id="width-slider" min="40" max="300" value="120">
+        </div>
+        <div class="control-row">
+          <label>
+            Target FPS
+            <span id="fps-value">24</span>
+          </label>
+          <input type="range" id="fps-slider" min="5" max="60" value="24">
+        </div>
+        <div class="control-row">
+          <label>
+            Font Size
+            <span id="fontsize-value">10</span>px
+          </label>
+          <input type="range" id="fontsize-slider" min="4" max="20" value="10">
+        </div>
+      </section>
+
+      <!-- Character Set -->
+      <section class="control-section">
+        <h3>Character Set</h3>
+        <div class="control-row">
+          <select id="charset-select">
+            <option value="braille">Braille (highest detail)</option>
+            <option value="quadrants">Quadrants (2x2 blocks)</option>
+            <option value="dense">Dense ASCII (90 chars)</option>
+            <option value="standard">Standard ASCII (70 chars)</option>
+            <option value="blocks">Unicode Blocks</option>
+            <option value="simple">Simple (10 chars)</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- Dithering -->
+      <section class="control-section">
+        <h3>Dithering</h3>
+        <div class="control-row">
+          <select id="dither-select">
+            <option value="none">None</option>
+            <option value="floyd-steinberg">Floyd-Steinberg</option>
+            <option value="atkinson">Atkinson (Mac style)</option>
+            <option value="bayer">Bayer (ordered)</option>
+          </select>
+        </div>
+        <div class="control-row">
+          <label>
+            Threshold
+            <span id="threshold-value">128</span>
+          </label>
+          <input type="range" id="threshold-slider" min="0" max="255" value="128">
+        </div>
+      </section>
+
+      <!-- Appearance -->
+      <section class="control-section">
+        <h3>Appearance</h3>
+        <div class="control-row checkbox-row">
+          <input type="checkbox" id="colored-check" checked>
+          <label for="colored-check">Colored output</label>
+        </div>
+        <div class="control-row checkbox-row">
+          <input type="checkbox" id="invert-check">
+          <label for="invert-check">Invert brightness</label>
+        </div>
+      </section>
+
+      <!-- Render Mode -->
+      <section class="control-section">
+        <h3>Render Mode</h3>
+        <div class="control-row">
+          <select id="render-select">
+            <option value="canvas">Canvas (faster)</option>
+            <option value="dom">DOM (colored spans)</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- Video Playlist -->
+      <section class="control-section">
+        <h3>Video Playlist</h3>
+        <div class="video-list" id="video-list">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+    </aside>
+
+    <!-- Controls Toggle Button -->
+    <button class="controls-toggle" id="controls-toggle" aria-label="Toggle controls">
+      <span>&#9881;</span>
+    </button>
+
+    <!-- Keyboard Shortcuts Hint -->
+    <div class="shortcuts-hint">
+      <kbd>Space</kbd> Play/Pause
+      <kbd>C</kbd> Controls
+      <kbd>R</kbd> Reset
+    </div>
+  </div>
+
+  <script type="module">
+    import { AsciiVideoEngine } from './js/ascii-video-engine.js';
+
+    // Video playlist (same as hero section)
+    const VIDEO_PLAYLIST = [
+      'assets/videos/seamless-loop_00003.webm',
+      'assets/videos/seamless-loop_00007.webm',
+      'assets/videos/seamless-loop_00011.webm',
+      'assets/videos/seamless-loop_00013.webm',
+      'assets/videos/seamless-loop_00015.webm',
+      'assets/videos/seamless-loop_00017.webm',
+      'assets/videos/seamless-loop_00019.webm',
+      'assets/videos/seamless-loop_00021.webm',
+      'assets/videos/seamless-loop_00023.webm',
+      'assets/videos/seamless-loop_00025.webm',
+      'assets/videos/seamless-loop_00027.webm',
+      'assets/videos/seamless-loop_00029.webm',
+      'assets/videos/seamless-loop_00031.webm',
+      'assets/videos/seamless-loop_00035.webm',
+      'assets/videos/seamless-loop_00037.webm',
+      'assets/videos/seamless-loop_00039.webm',
+      'assets/videos/seamless-loop_00041.webm',
+      'assets/videos/seamless-loop_00049.webm',
+    ];
+
+    // Presets configuration
+    const PRESETS = {
+      detailed: {
+        characterSet: 'braille',
+        width: 160,
+        colored: true,
+        dithering: 'none',
+        invert: false,
+        fontSize: 8,
+        targetFps: 24,
+      },
+      retro: {
+        characterSet: 'standard',
+        width: 80,
+        colored: false,
+        dithering: 'atkinson',
+        invert: false,
+        fontSize: 12,
+        targetFps: 15,
+      },
+      matrix: {
+        characterSet: 'dense',
+        width: 120,
+        colored: false,
+        dithering: 'none',
+        invert: false,
+        fontSize: 10,
+        targetFps: 24,
+      },
+      minimal: {
+        characterSet: 'simple',
+        width: 60,
+        colored: true,
+        dithering: 'none',
+        invert: false,
+        fontSize: 14,
+        targetFps: 24,
+      },
+      blocks: {
+        characterSet: 'quadrants',
+        width: 100,
+        colored: true,
+        dithering: 'none',
+        invert: false,
+        fontSize: 10,
+        targetFps: 24,
+      },
+      'high-contrast': {
+        characterSet: 'braille',
+        width: 140,
+        colored: true,
+        dithering: 'floyd-steinberg',
+        invert: false,
+        fontSize: 8,
+        targetFps: 24,
+      },
+    };
+
+    // DOM elements
+    const container = document.getElementById('ascii-container');
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const controlsPanel = document.getElementById('controls-panel');
+    const controlsToggle = document.getElementById('controls-toggle');
+
+    // Stats elements
+    const statFps = document.getElementById('stat-fps');
+    const statProcess = document.getElementById('stat-process');
+    const statSize = document.getElementById('stat-size');
+    const statVideo = document.getElementById('stat-video');
+
+    // Control elements
+    const widthSlider = document.getElementById('width-slider');
+    const widthValue = document.getElementById('width-value');
+    const fpsSlider = document.getElementById('fps-slider');
+    const fpsValue = document.getElementById('fps-value');
+    const fontsizeSlider = document.getElementById('fontsize-slider');
+    const fontsizeValue = document.getElementById('fontsize-value');
+    const charsetSelect = document.getElementById('charset-select');
+    const ditherSelect = document.getElementById('dither-select');
+    const thresholdSlider = document.getElementById('threshold-slider');
+    const thresholdValue = document.getElementById('threshold-value');
+    const coloredCheck = document.getElementById('colored-check');
+    const invertCheck = document.getElementById('invert-check');
+    const renderSelect = document.getElementById('render-select');
+    const videoList = document.getElementById('video-list');
+    const btnPlay = document.getElementById('btn-play');
+    const btnPause = document.getElementById('btn-pause');
+    const presetBtns = document.querySelectorAll('.preset-btn');
+
+    // Engine instance
+    let engine = null;
+
+    // Initialize engine
+    function initEngine() {
+      if (engine) {
+        engine.destroy();
+      }
+
+      engine = new AsciiVideoEngine({
+        container,
+        playlist: VIDEO_PLAYLIST,
+        width: parseInt(widthSlider.value),
+        targetFps: parseInt(fpsSlider.value),
+        characterSet: charsetSelect.value,
+        dithering: ditherSelect.value,
+        colored: coloredCheck.checked,
+        invert: invertCheck.checked,
+        threshold: parseInt(thresholdSlider.value),
+        fontSize: parseInt(fontsizeSlider.value),
+        renderMode: renderSelect.value,
+        onStats: (stats) => {
+          statFps.textContent = stats.fps;
+          statProcess.textContent = `${stats.processingTime.toFixed(1)}ms`;
+        },
+        onFrame: (lines, imageData) => {
+          statSize.textContent = `${lines[0]?.length || 0}x${lines.length}`;
+          statVideo.textContent = `${engine.currentVideoIndex + 1}/${VIDEO_PLAYLIST.length}`;
+          loadingOverlay.classList.add('hidden');
+        },
+      });
+
+      // Start playback
+      engine.play();
+    }
+
+    // Populate video list
+    function populateVideoList() {
+      videoList.innerHTML = VIDEO_PLAYLIST.map((src, i) => {
+        const name = src.split('/').pop();
+        return `
+          <div class="video-item ${i === 0 ? 'active' : ''}" data-index="${i}">
+            <span class="index">${String(i + 1).padStart(2, '0')}</span>
+            <span class="name">${name}</span>
+          </div>
+        `;
+      }).join('');
+
+      // Click handler
+      videoList.addEventListener('click', (e) => {
+        const item = e.target.closest('.video-item');
+        if (item) {
+          const index = parseInt(item.dataset.index);
+          if (engine && engine.video) {
+            engine.currentVideoIndex = index;
+            engine.video.src = VIDEO_PLAYLIST[index];
+            engine.video.load();
+            engine.video.play();
+
+            // Update active state
+            videoList.querySelectorAll('.video-item').forEach((el, i) => {
+              el.classList.toggle('active', i === index);
+            });
+          }
+        }
+      });
+    }
+
+    // Apply preset
+    function applyPreset(presetName) {
+      const preset = PRESETS[presetName];
+      if (!preset) return;
+
+      // Update controls
+      widthSlider.value = preset.width;
+      widthValue.textContent = preset.width;
+      fpsSlider.value = preset.targetFps;
+      fpsValue.textContent = preset.targetFps;
+      fontsizeSlider.value = preset.fontSize;
+      fontsizeValue.textContent = preset.fontSize;
+      charsetSelect.value = preset.characterSet;
+      ditherSelect.value = preset.dithering;
+      coloredCheck.checked = preset.colored;
+      invertCheck.checked = preset.invert;
+
+      // Update active preset button
+      presetBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.preset === presetName);
+      });
+
+      // Reinitialize engine
+      initEngine();
+    }
+
+    // Control change handlers
+    function setupControls() {
+      // Sliders
+      widthSlider.addEventListener('input', () => {
+        widthValue.textContent = widthSlider.value;
+        engine?.setOptions({ width: parseInt(widthSlider.value) });
+      });
+
+      fpsSlider.addEventListener('input', () => {
+        fpsValue.textContent = fpsSlider.value;
+        engine?.setOptions({ targetFps: parseInt(fpsSlider.value) });
+      });
+
+      fontsizeSlider.addEventListener('input', () => {
+        fontsizeValue.textContent = fontsizeSlider.value;
+        engine?.setOptions({ fontSize: parseInt(fontsizeSlider.value) });
+      });
+
+      thresholdSlider.addEventListener('input', () => {
+        thresholdValue.textContent = thresholdSlider.value;
+        engine?.setOptions({ threshold: parseInt(thresholdSlider.value) });
+      });
+
+      // Selects
+      charsetSelect.addEventListener('change', () => {
+        engine?.setOptions({ characterSet: charsetSelect.value });
+      });
+
+      ditherSelect.addEventListener('change', () => {
+        engine?.setOptions({ dithering: ditherSelect.value });
+      });
+
+      renderSelect.addEventListener('change', () => {
+        // Need to reinitialize for render mode change
+        initEngine();
+      });
+
+      // Checkboxes
+      coloredCheck.addEventListener('change', () => {
+        engine?.setOptions({ colored: coloredCheck.checked });
+      });
+
+      invertCheck.addEventListener('change', () => {
+        engine?.setOptions({ invert: invertCheck.checked });
+      });
+
+      // Playback buttons
+      btnPlay.addEventListener('click', () => engine?.play());
+      btnPause.addEventListener('click', () => engine?.pause());
+
+      // Presets
+      presetBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          applyPreset(btn.dataset.preset);
+        });
+      });
+
+      // Controls panel toggle
+      controlsToggle.addEventListener('click', () => {
+        controlsPanel.classList.toggle('open');
+      });
+    }
+
+    // Keyboard shortcuts
+    function setupKeyboardShortcuts() {
+      document.addEventListener('keydown', (e) => {
+        // Ignore if typing in input
+        if (e.target.matches('input, select, textarea')) return;
+
+        switch (e.key.toLowerCase()) {
+          case ' ':
+            e.preventDefault();
+            engine?.toggle();
+            break;
+          case 'c':
+            controlsPanel.classList.toggle('open');
+            break;
+          case 'r':
+            initEngine();
+            break;
+          case 'escape':
+            controlsPanel.classList.remove('open');
+            break;
+          case '1':
+          case '2':
+          case '3':
+          case '4':
+          case '5':
+          case '6':
+            const presetNames = Object.keys(PRESETS);
+            const idx = parseInt(e.key) - 1;
+            if (idx < presetNames.length) {
+              applyPreset(presetNames[idx]);
+            }
+            break;
+        }
+      });
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      populateVideoList();
+      setupControls();
+      setupKeyboardShortcuts();
+      initEngine();
+    });
+  </script>
+</body>
+</html>
