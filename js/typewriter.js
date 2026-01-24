@@ -5,11 +5,11 @@
  * Uses async/await for clean sequential animation control.
  */
 
-// Phrases to cycle through
+// Phrases to cycle through (period handled separately for magnetic cursor effect)
 const PHRASES = [
-  'Complexity to simplicity.',
-  'Friction to flow.',
-  'Chaos to order.'
+  'Complexity to simplicity',
+  'Friction to flow',
+  'Chaos to order'
 ];
 
 // Timing configuration

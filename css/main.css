@@ -2342,6 +2342,92 @@ input, textarea {
 }
 
 /* ==========================================================================
+   Period Magnet & Metamorphosis Overlay
+   ========================================================================== */
+
+/* Period Trigger - subtle wiggle to invite interaction */
+.period-trigger {
+  display: inline-block;
+  animation: subtle-wiggle 2.5s ease-in-out infinite;
+  cursor: pointer;
+}
+
+@keyframes subtle-wiggle {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(0.5px, -0.5px); }
+  40% { transform: translate(-0.5px, 0.5px); }
+  60% { transform: translate(0.5px, 0.3px); }
+  80% { transform: translate(-0.3px, -0.5px); }
+}
+
+/* Period Rectangle SVG Overlay */
+.period-rect-svg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.period-rect-svg.active {
+  opacity: 1;
+}
+
+.period-rect-path {
+  fill: none;
+  stroke: var(--color-text);
+  stroke-width: 2;
+  stroke-dasharray: 0;
+  stroke-dashoffset: 0;
+}
+
+/* Metamorphosis Canvas */
+#metamorphosis-canvas {
+  position: fixed;
+  left: 40px;
+  top: 35%;
+  width: calc(100% - 80px);
+  height: 55%;
+  pointer-events: none;
+  z-index: 9997;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#metamorphosis-canvas.active {
+  opacity: 1;
+}
+
+/* Reduced motion - disable magnetic cursor animations */
+@media (prefers-reduced-motion: reduce) {
+  .period-trigger {
+    animation: none;
+  }
+
+  .period-rect-svg,
+  #metamorphosis-canvas {
+    display: none !important;
+  }
+}
+
+/* Touch devices - disable magnetic cursor (no hover) */
+@media (hover: none), (pointer: coarse) {
+  .period-trigger {
+    animation: none;
+    cursor: default;
+  }
+
+  .period-rect-svg,
+  #metamorphosis-canvas {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
    Responsive
    ========================================================================== */
 

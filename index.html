@@ -78,6 +78,14 @@
   <!-- Blackout overlay - paints from top of viewport, inverts everything via blend mode -->
   <div class="blackout-overlay" aria-hidden="true"></div>
 
+  <!-- Period Rectangle SVG Overlay - draws on magnetic cursor capture -->
+  <svg class="period-rect-svg" id="period-rect-svg" aria-hidden="true">
+    <rect class="period-rect-path" id="period-rect-path" rx="4"/>
+  </svg>
+
+  <!-- Metamorphosis Canvas - 8-phase animation triggered by period capture -->
+  <canvas id="metamorphosis-canvas" aria-hidden="true"></canvas>
+
   <!-- WebGL Thread Canvas (disabled until rope finessed) -->
   <!-- <canvas id="thread-canvas" aria-hidden="true"></canvas> -->
 
@@ -102,7 +110,7 @@
         </div>
         <p class="hero-tagline hero-reveal hero-reveal--delayed">
           <span class="typewriter">
-            <span class="typewriter__text"></span>
+            <span class="typewriter__text"></span><span class="period-trigger" id="period-trigger">.</span>
             <span class="typewriter__cursor typewriter__cursor--blink">|</span>
           </span>
         </p>
@@ -276,6 +284,28 @@
   <script type="module">
     import { initCustomCursor } from './js/cursor.js';
     initCustomCursor();
+  </script>
+
+  <!-- Magnetic Cursor & Metamorphosis Animation -->
+  <script type="module">
+    import { initMagneticCursor } from './js/magnetic-cursor.js';
+    import { initMetamorphosis } from './js/metamorphosis-canvas.js';
+
+    // Initialize after DOM ready and cursor.js has created .custom-cursor
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        // Small delay to ensure cursor.js has initialized first
+        setTimeout(() => {
+          initMetamorphosis();
+          initMagneticCursor();
+        }, 150);
+      });
+    } else {
+      setTimeout(() => {
+        initMetamorphosis();
+        initMagneticCursor();
+      }, 150);
+    }
   </script>
 
   <!-- Cal.com Embed Script for Booking Modal -->
