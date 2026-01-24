@@ -38,6 +38,7 @@ export function initHeroVideoReveal(options = {}) {
     heroSelector = '.section--hero',
     videoSrc = 'assets/videos/dem-loop-08.webm',
     fallbackSrc = 'assets/videos/dem-loop-08.mp4',
+    videoPlaylist = [],
     revealRadius = 180,
     edgeSoftness = 50,
     opacity = 0.95,
@@ -61,6 +62,7 @@ export function initHeroVideoReveal(options = {}) {
   const videoCanvas = new VideoRevealCanvas({
     videoSrc,
     fallbackSrc,
+    videoPlaylist,
     revealRadius,
     edgeSoftness,
     opacity,
@@ -136,12 +138,17 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
+  // Parse video playlist from data attribute (comma-separated)
+  const playlistAttr = heroSection?.dataset.videoPlaylist || '';
+  const videoPlaylist = playlistAttr ? playlistAttr.split(',').map(s => s.trim()).filter(Boolean) : [];
+
   // Initialize with default options
   // Options can be overridden via data attributes or by calling initHeroVideoReveal directly
   const instance = initHeroVideoReveal({
     heroSelector: '.section--hero',
     videoSrc: heroSection?.dataset.videoSrc || 'assets/videos/dem-loop-08.webm',
     fallbackSrc: heroSection?.dataset.fallbackSrc || 'assets/videos/dem-loop-08.mp4',
+    videoPlaylist,
     revealRadius: parseInt(heroSection?.dataset.revealRadius, 10) || 180,
     edgeSoftness: parseInt(heroSection?.dataset.edgeSoftness, 10) || 50,
     opacity: parseFloat(heroSection?.dataset.videoOpacity) || 0.95

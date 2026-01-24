@@ -85,10 +85,20 @@
   <main id="main-content">
 
     <!-- Hero Section -->
-    <section class="section section--hero" aria-labelledby="hero-title">
+    <section class="section section--hero" aria-labelledby="hero-title"
+             data-video-playlist="assets/videos/seamless-loop_00003.webm,assets/videos/seamless-loop_00007.webm,assets/videos/seamless-loop_00011.webm,assets/videos/seamless-loop_00013.webm,assets/videos/seamless-loop_00015.webm,assets/videos/seamless-loop_00017.webm,assets/videos/seamless-loop_00019.webm,assets/videos/seamless-loop_00021.webm,assets/videos/seamless-loop_00023.webm,assets/videos/seamless-loop_00025.webm,assets/videos/seamless-loop_00027.webm,assets/videos/seamless-loop_00029.webm,assets/videos/seamless-loop_00031.webm,assets/videos/seamless-loop_00035.webm,assets/videos/seamless-loop_00037.webm,assets/videos/seamless-loop_00039.webm,assets/videos/seamless-loop_00041.webm,assets/videos/seamless-loop_00049.webm">
       <div class="container">
         <div class="hero-title-wrapper">
-          <h1 id="hero-title" class="hero-title hero-reveal">DEM Systems</h1>
+          <!-- Canvas for video-masked text effect -->
+          <div id="hero-video-text"
+               class="hero-video-text-container hero-reveal"
+               data-text="DEM Systems"
+               data-video-playlist="assets/videos/seamless-loop_00003.webm,assets/videos/seamless-loop_00007.webm,assets/videos/seamless-loop_00011.webm,assets/videos/seamless-loop_00013.webm,assets/videos/seamless-loop_00015.webm,assets/videos/seamless-loop_00017.webm,assets/videos/seamless-loop_00019.webm,assets/videos/seamless-loop_00021.webm,assets/videos/seamless-loop_00023.webm,assets/videos/seamless-loop_00025.webm,assets/videos/seamless-loop_00027.webm,assets/videos/seamless-loop_00029.webm,assets/videos/seamless-loop_00031.webm,assets/videos/seamless-loop_00035.webm,assets/videos/seamless-loop_00037.webm,assets/videos/seamless-loop_00039.webm,assets/videos/seamless-loop_00041.webm,assets/videos/seamless-loop_00049.webm"
+               style="height: clamp(60px, 10vw, 120px); width: 100%;"
+               aria-label="DEM Systems">
+          </div>
+          <!-- Fallback for reduced motion / no-JS -->
+          <h1 id="hero-title" class="hero-title hero-title--fallback hero-reveal">DEM Systems</h1>
         </div>
         <p class="hero-tagline hero-reveal hero-reveal--delayed">
           <span class="typewriter">

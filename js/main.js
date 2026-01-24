@@ -3,6 +3,8 @@
  * Handles scroll reveals and UI interactions
  */
 
+import { initTextMaskedVideo } from './text-masked-video.js';
+
 // Check for reduced motion preference
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -242,6 +244,16 @@ function init() {
   initScrollIndicator();
   initTestimonialCarousel();
   initSmoothScroll();
+
+  // Initialize video-masked text effect (only if motion is allowed)
+  if (!prefersReducedMotion) {
+    initTextMaskedVideo({
+      containerSelector: '#hero-video-text',
+      playbackRate: 0.5,
+      lerpFactor: 0.4,
+      sampleColor: true
+    });
+  }
 }
 
 // Run on DOM ready

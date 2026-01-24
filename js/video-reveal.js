@@ -20,6 +20,7 @@ export class VideoRevealCanvas {
   constructor(options = {}) {
     this.videoSrc = options.videoSrc || '';
     this.fallbackSrc = options.fallbackSrc || '';
+    this.videoPlaylist = options.videoPlaylist || [];
     this.revealRadius = options.revealRadius ?? 150;
     this.edgeSoftness = options.edgeSoftness ?? 40;
     this.opacity = options.opacity ?? 0.9;
@@ -30,6 +31,10 @@ export class VideoRevealCanvas {
     this.video = null;
     this.isVideoReady = false;
     this.isPlaying = false;
+
+    // Playlist state
+    this.currentVideoIndex = 0;
+    this.usePlaylist = this.videoPlaylist.length > 0;
 
     // Device pixel ratio for crisp rendering
     this.dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -56,20 +61,27 @@ export class VideoRevealCanvas {
   _createVideo() {
     this.video = document.createElement('video');
     this.video.muted = true;
-    this.video.loop = true;
     this.video.playsInline = true;
     this.video.preload = 'auto';
 
-    // Prefer WebM, fallback to MP4 for Safari
-    const canPlayWebM = this.video.canPlayType('video/webm; codecs="vp9"') ||
-                        this.video.canPlayType('video/webm; codecs="vp8"');
+    // Only loop if NOT using playlist (playlist handles its own looping)
+    this.video.loop = !this.usePlaylist;
 
-    if (canPlayWebM && this.videoSrc) {
-      this.video.src = this.videoSrc;
-    } else if (this.fallbackSrc) {
-      this.video.src = this.fallbackSrc;
-    } else if (this.videoSrc) {
-      this.video.src = this.videoSrc;
+    // Set video source (playlist or single)
+    if (this.usePlaylist) {
+      this.video.src = this.videoPlaylist[0];
+    } else {
+      // Prefer WebM, fallback to MP4 for Safari
+      const canPlayWebM = this.video.canPlayType('video/webm; codecs="vp9"') ||
+                          this.video.canPlayType('video/webm; codecs="vp8"');
+
+      if (canPlayWebM && this.videoSrc) {
+        this.video.src = this.videoSrc;
+      } else if (this.fallbackSrc) {
+        this.video.src = this.fallbackSrc;
+      } else if (this.videoSrc) {
+        this.video.src = this.videoSrc;
+      }
     }
 
     this.video.addEventListener('canplaythrough', () => {
@@ -79,14 +91,38 @@ export class VideoRevealCanvas {
     this.video.addEventListener('error', (e) => {
       console.warn('Video failed to load:', e);
       // Try fallback if primary failed
-      if (this.video.src !== this.fallbackSrc && this.fallbackSrc) {
+      if (!this.usePlaylist && this.video.src !== this.fallbackSrc && this.fallbackSrc) {
         console.log('Trying fallback video source...');
         this.video.src = this.fallbackSrc;
       }
     });
 
+    // Handle playlist advancement when video ends
+    if (this.usePlaylist) {
+      this.video.addEventListener('ended', () => {
+        this._advanceToNextVideo();
+      });
+    }
+
     // Start loading
     this.video.load();
+  }
+
+  /**
+   * Advance to the next video in the playlist
+   * @private
+   */
+  _advanceToNextVideo() {
+    // Move to next video (loop back to 0 if at end)
+    this.currentVideoIndex = (this.currentVideoIndex + 1) % this.videoPlaylist.length;
+    const nextSrc = this.videoPlaylist[this.currentVideoIndex];
+
+    // Load and play next video
+    this.video.src = nextSrc;
+    this.video.load();
+    if (this.isPlaying) {
+      this.video.play().catch(() => {});
+    }
   }
 
   /**

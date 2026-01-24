@@ -145,6 +145,12 @@ body {
   display: inline-block;
 }
 
+/* When wrapper contains video text, expand to full width */
+.hero-title-wrapper:has(.hero-video-text-container) {
+  display: block;
+  width: 100%;
+}
+
 /* Video reveal canvas - positioned behind hero content */
 .video-reveal-canvas {
   position: absolute;
@@ -153,6 +159,49 @@ body {
   height: 100%;
   pointer-events: none;
   z-index: 0;
+}
+
+/* ==========================================================================
+   Text Masked Video Effect
+   ========================================================================== */
+
+.hero-video-text-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+
+.text-masked-video-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+
+/* Fallback title - hidden when JS/video works */
+.hero-title--fallback {
+  display: none;
+}
+
+/* Show fallback for reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .hero-video-text-container {
+    display: none !important;
+  }
+  .hero-title--fallback {
+    display: block;
+  }
+}
+
+/* No-JS fallback */
+.no-js .hero-video-text-container {
+  display: none;
+}
+.no-js .hero-title--fallback {
+  display: block;
 }
 
 /* Ensure hero section can contain the absolute canvas */
